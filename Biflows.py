@@ -11,10 +11,10 @@ import pickle
 import pyarrow
 import beepy
 
+#Biflows_Check legge il pcap relativo ad ogni singolo attacco del dataset e raggruppa i singoli pacchetti in biflussi
 def Biflows_Check(string):
     all_biflows = dict()
     packets_pcap = rdpcap('Dataset/'+str(string)+'/'+str(string)+'_pcap.pcapng')
-    #per Mirai_IP nella lettura del csv labels si deve aggiungere header=None e si deve levare il drop del columns Unnamed: 0;
     packets_labels = pd.read_csv('Dataset/'+str(string)+'/'+str(string)+'_labels.csv',delimiter =',')
     packets_labels = packets_labels.drop(columns='Unnamed: 0')
     packets_labels = packets_labels.to_numpy()
@@ -47,7 +47,8 @@ def Biflows_Check(string):
     pickle.dump(all_biflows,open('Biflussi/'+str(string)+'/all_biflows_'+str(string)+'.p','wb')) 
     
     
-    
+#Estrai_statistiche_biflows estrae le statistiche di ogni biflusso. Successivamente distingue i biflussi malevoli da quelli benigni e infine salva anche i biflussi
+#che hanno sia pacchetti benigni che malevoli
 def Estrai_statistiche_biflows(string):
     
     all_biflows=pickle.load(open('Biflussi/'+str(string)+'/all_biflows_'+str(string)+'.p','rb'))
@@ -173,7 +174,7 @@ def Estrai_statistiche_biflows(string):
     pickle.dump(benign_biflows,open('Biflussi/'+str(string)+'/benign_biflows_'+str(string)+'.p','wb'))
     pickle.dump(malign_biflows,open('Biflussi/'+str(string)+'/malign_biflows_'+str(string)+'.p','wb'))
     
-    
+#Mix_Biflows_Division divide i biflussi misti in biflussi benigni o malevoli tramite un filtro
 def Mix_Biflows_Division(string):
     c=pickle.load(open("Biflussi/"+str(string)+"/mix_biflows_"+str(string)+".p","rb"))
     mix = dict()
@@ -189,7 +190,6 @@ def Mix_Biflows_Division(string):
             else:
                 mix[quintupla]['pkt_malign'] += 1
             
-        #print(quintupla, mix[quintupla]['pkt_benign'], mix[quintupla]['pkt_malign'])
     mix_buoni = dict()
     mix_malign = dict()
 
@@ -242,6 +242,7 @@ def Mix_Biflows_Division(string):
     pickle.dump(mix_buoni,open('Biflussi/'+str(string)+'/mix_benign_biflows_'+str(string)+'.p','wb'))
     pickle.dump(mix_malign,open('Biflussi/'+str(string)+'/mix_malign_biflows_'+str(string)+'.p','wb'))
     
+    
 def load_biflows(string):
     
     benign_biflows=pickle.load(open("Biflussi/"+str(string)+"/benign_biflows_"+str(string)+".p","rb"))
@@ -251,6 +252,7 @@ def load_biflows(string):
     mix_m_biflows = pickle.load(open("Biflussi/"+str(string)+"/mix_malign_biflows_"+str(string)+".p","rb"))
     return benign_biflows,malign_biflows,mix_biflows,mix_b_biflows,mix_m_biflows
 
+#Aggiungi_filtraggio prende i misti buoni e i misti cattivi e li aggiunge ai biflussi buoni e cattivi salvati in precedenza
 def Aggiungi_filtraggio(string):
     a,b,c,d,e = load_biflows(string)
     
@@ -266,7 +268,7 @@ def Aggiungi_filtraggio(string):
     pickle.dump(a,open('Biflussi/'+str(string)+'/final_benign_biflows_'+str(string)+'.p','wb'))
     pickle.dump(b,open('Biflussi/'+str(string)+'/final_malign_biflows_'+str(string)+'.p','wb'))
     
-    
+#extract_statistics calcola varie statistiche relative alle features di ogni singolo biflusso
 def extract_statistics(packettino):
     packet=list(map(float,packettino))
     
@@ -313,7 +315,8 @@ def extract_statistics(packettino):
     
     return packet_field_statistics
     
-    
+#EstraiStatisticheBiflusso Estrae le statistiche di ogni biflusso prima benigni e poi malevoli e li raggruppa salvando poi il tutto in un csv delle statistiche
+#dei biflussi benigni e poi quelli malevoli
 def EstraiStatisticheBiflusso(string):
     benign_biflows=pickle.load(open('Biflussi/'+str(string)+'/final_benign_biflows_'+str(string)+'.p','rb'))
     malign_biflows=pickle.load(open('Biflussi/'+str(string)+'/final_malign_biflows_'+str(string)+'.p','rb'))
