@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 
 
 def StampaF1_score_Tprs():
-    for percent_poisoning in (0,1,2,3,4,5,6,7,8,9,10):
+    for percent_poisoning in (0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10):
         tprs=np.zeros(10)
         f1_score=np.zeros(10)
         for Fold in range(10):
@@ -22,7 +22,7 @@ def StampaF1_score_Tprs():
         
 def StampaRoc_CurveConfigurazione():
     fig=plt.figure(1)
-    for percent_poisoning in (0,1,3,5,10):
+    for percent_poisoning in (0,1,2,2.5,3,3.5,4,4.5,5):
         tprs=[]
         mean_fpr = np.linspace(0, 1, 500)
         for Fold in range(10):
