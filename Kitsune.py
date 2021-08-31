@@ -266,3 +266,24 @@ def Kitsune_Poisoning(selected_features):
             plot_df = pd.DataFrame.from_dict(for_plot)
             plot_df.to_csv("Statistiche/"+str(percent_poisoning)+"%_poisoning/"+str(iteration+1)+"Fold.csv")
         iteration+=1
+        
+def Kitsune_Summary(path,path1,num_epochs):
+    feature_list = [5,10,15,20,25,30,35,40,45,50,55,60,65,71]
+    f1_list = list()
+    big_list = list()
+    stats_dict = dict()
+    for feat in feature_list:
+        for i in range(1,11):
+            dataset = pd.read_csv(str(path)+"/{}/{}Fold.csv".format(feat,i))
+            f1_score = metrics.f1_score(dataset[:]['y_true'], dataset[:]['y_pred'],average='macro')
+            f1_list.append(f1_score)
+        mean = statistics.mean(f1_list)
+        std = statistics.stdev(f1_list)
+
+ 
+
+
+        stats_dict['{}_features'.format(feat)] = [mean,std]
+    stats_df =pd.DataFrame.from_dict(stats_dict,orient='index')
+    stats_df.columns = ['mean','std']
+    stats_df.to_csv(str(path1)+"/"+str(num_epochs)+"/summary.csv")
